@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CubeTimer</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+  :root {
+
+    --bg: #0a0a0f;
+
+    --surface: #12121a;
+
+    --surface2: #1a1a26;
+
+    --border: #2a2a3e;
+
+    --accent: #00e5ff;
+
+    --accent2: #ff6b35;
+
+    --text: #e8e8f0;
+
+    --muted: #5a5a7a;
+
+    --green: #00ff88;
+
+    --red: #ff4466;
+
+    --yellow: #ffd700;
+
+  }
+
+  .light {
+
+    --bg: #f0f0f5;
+
+    --surface: #ffffff;
+
+    --surface2: #e8e8f0;
+
+    --border: #d0d0e0;
+
+    --accent: #0088cc;
+
+    --accent2: #e05520;
+
+    --text: #1a1a2e;
+
+    --muted: #8888aa;
+
+    --green: #00aa55;
+
+    --red: #cc2244;
+
+    --yellow: #cc9900;
+
+  }
+
+
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+
+
+  body {
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    font-family: 'JetBrains Mono', monospace;
+
+    min-height: 100vh;
+
+    transition: background 0.3s, color 0.3s;
+
+    overflow-x: hidden;
+
+  }
+
+
+
+  /* Grid background */
+
+  body::before {
+
+    content: '';
+
+    position: fixed;
+
+    inset: 0;
+
+    background-image:
+
+      linear-gradient(var(--border) 1px, transparent 1px),
+
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+
+    background-size: 40px 40px;
+
+    opacity: 0.3;
+
+    pointer-events: none;
+
+    z-index: 0;
+
+  }
+
+
+
+  .app {
+
+    position: relative;
+
+    z-index: 1;
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding: 20px;
+
+    display: grid;
+
+    grid-template-rows: auto auto auto 1fr;
+
+    min-height: 100vh;
+
+    gap: 16px;
+
+  }
+
+
+
+  /* HEADER */
+
+  header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 12px 20px;
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 4px;
+
+  }
+
+
+
+  .logo {
+
+    font-family: 'Bebas Neue', sans-serif;
+
+    font-size: 28px;
+
+    letter-spacing: 3px;
+
+    color: var(--accent);
+
+    text-shadow: 0 0 20px var(--accent);
+
+  }
+
+
+
+  .logo span { color: var(--accent2); }
+
+
+
+  .header-controls {
+
+    display: flex;
+
+    gap: 10px;
+
+    align-items: center;
+
+  }
+
+
+
+  .btn {
+
+    background: transparent;
+
+    border: 1px solid var(--border);
+
+    color: var(--text);
+
+    padding: 8px 16px;
+
+    font-family: 'JetBrains Mono', monospace;
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+    border-radius: 3px;
+
+    transition: all 0.15s;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+
+  }
+
+  .btn:hover {
+
+    border-color: var(--accent);
+
+    color: var(--accent);
+
+    background: rgba(0,229,255,0.05);
+
+  }
+
+  .btn.danger:hover {
+
+    border-color: var(--red);
+
+    color: var(--red);
+
+    background: rgba(255,68,102,0.05);
+
+  }
+
+
+
+  /* SCRAMBLE */
+
+  .scramble-box {
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 4px;
+
+    padding: 16px 24px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 16px;
+
+  }
+
+
+
+  .scramble-label {
+
+    font-size: 10px;
+
+    color: var(--muted);
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+
+    white-space: nowrap;
+
+  }
+
+
+
+  .scramble-text {
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    color: var(--text);
+
+    letter-spacing: 2px;
+
+    flex: 1;
+
+    text-align: center;
+
+    line-height: 1.6;
+
+  }
+
+
+
+  /* TIMER SECTION */
+
+  .timer-section {
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 4px;
+
+    padding: 32px 24px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 16px;
+
+    position: relative;
+
+    overflow: hidden;
+
+  }
+
+
+
+  .timer-section::before {
+
+    content: '';
+
+    position: absolute;
+
+    bottom: 0; left: 0; right: 0;
+
+    height: 3px;
+
+    background: var(--accent);
+
+    transform: scaleX(0);
+
+    transition: transform 0.1s;
+
+  }
+
+  .timer-section.running::before { transform: scaleX(1); }
+
+  .timer-section.ready::before {
+
+    background: var(--green);
+
+    transform: scaleX(1);
+
+  }
+
+
+
+  .timer-display {
+
+    font-family: 'Bebas Neue', sans-serif;
+
+    font-size: clamp(72px, 15vw, 160px);
+
+    letter-spacing: 6px;
+
+    line-height: 1;
+
+    color: var(--text);
+
+    text-shadow: 0 0 60px rgba(0,229,255,0.15);
+
+    transition: color 0.1s, text-shadow 0.1s;
+
+    cursor: default;
+
+    user-select: none;
+
+  }
+
+
+
+  .timer-section.running .timer-display {
+
+    color: var(--accent);
+
+    text-shadow: 0 0 40px var(--accent);
+
+  }
+
+
+
+  .timer-section.ready .timer-display {
+
+    color: var(--green);
+
+    text-shadow: 0 0 40px var(--green);
+
+  }
+
+
+
+  .timer-hint {
+
+    font-size: 11px;
+
+    color: var(--muted);
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+
+  }
+
+
+
+  /* STATS ROW */
+
+  .stats-row {
+
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 10px;
+
+  }
+
+
+
+  .stat-card {
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 4px;
+
+    padding: 16px;
+
+    text-align: center;
+
+    transition: border-color 0.2s;
+
+  }
+
+  .stat-card:hover { border-color: var(--accent); }
+
+
+
+  .stat-label {
+
+    font-size: 9px;
+
+    color: var(--muted);
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+
+    margin-bottom: 8px;
+
+  }
+
+
+
+  .stat-value {
+
+    font-family: 'Bebas Neue', sans-serif;
+
+    font-size: 32px;
+
+    letter-spacing: 2px;
+
+    color: var(--text);
+
+  }
+
+
+
+  .stat-value.pb { color: var(--yellow); }
+
+  .stat-value.good { color: var(--green); }
+
+
+
+  /* HISTORY */
+
+  .history-section {
+
+    background: var(--surface);
+
+    border: 1px solid var(--border);
+
+    border-radius: 4px;
+
+    overflow: hidden;
+
+  }
+
+
+
+  .history-header {
+
+    padding: 14px 20px;
+
+    border-bottom: 1px solid var(--border);
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+  }
+
+
+
+  .history-title {
+
+    font-size: 11px;
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+
+    color: var(--muted);
+
+  }
+
+
+
+  .history-list {
+
+    max-height: 300px;
+
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+
+    scrollbar-color: var(--border) transparent;
+
+  }
+
+
+
+  .history-empty {
+
+    padding: 40px;
+
+    text-align: center;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    letter-spacing: 1px;
+
+  }
+
+
+
+  .history-item {
+
+    display: grid;
+
+    grid-template-columns: 40px 1fr 1fr 1fr 80px;
+
+    padding: 12px 20px;
+
+    border-bottom: 1px solid var(--border);
+
+    font-size: 13px;
+
+    align-items: center;
+
+    transition: background 0.1s;
+
+    animation: slideIn 0.2s ease;
+
+  }
+
+  .history-item:hover { background: var(--surface2); }
+
+  .history-item:last-child { border-bottom: none; }
+
+
+
+  @keyframes slideIn {
+
+    from { opacity: 0; transform: translateY(-8px); }
+
+    to { opacity: 1; transform: translateY(0); }
+
+  }
+
+
+
+  .history-num { color: var(--muted); font-size: 11px; }
+
+  .history-time { font-weight: 600; font-size: 15px; }
+
+  .history-time.pb { color: var(--yellow); }
+
+  .history-ao5, .history-ao12 { color: var(--muted); font-size: 12px; }
+
+  .history-scramble-mini {
+
+    font-size: 9px;
+
+    color: var(--muted);
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+  }
+
+
+
+  .delete-btn {
+
+    background: transparent;
+
+    border: none;
+
+    color: var(--muted);
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+    padding: 4px;
+
+    border-radius: 3px;
+
+    transition: color 0.1s;
+
+    text-align: right;
+
+  }
+
+  .delete-btn:hover { color: var(--red); }
+
+
+
+  .col-header {
+
+    display: grid;
+
+    grid-template-columns: 40px 1fr 1fr 1fr 80px;
+
+    padding: 8px 20px;
+
+    border-bottom: 1px solid var(--border);
+
+    font-size: 9px;
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+
+    color: var(--muted);
+
+  }
+
+
+
+  /* THEME TOGGLE */
+
+  .theme-toggle {
+
+    width: 36px;
+
+    height: 36px;
+
+    border-radius: 3px;
+
+    font-size: 16px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 0;
+
+  }
+
+
+
+  /* Responsive */
+
+  @media (max-width: 700px) {
+
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+
+    .scramble-box { flex-direction: column; text-align: center; }
+
+    .history-item { grid-template-columns: 30px 1fr 1fr 50px; }
+
+    .history-ao12 { display: none; }
+
+    .col-header { grid-template-columns: 30px 1fr 1fr 50px; }
+
+  }
+
+
+
+  @media (max-width: 480px) {
+
+    .timer-display { font-size: 64px; }
+
+    .history-item { grid-template-columns: 30px 1fr 70px; }
+
+    .history-ao5 { display: none; }
+
+    .col-header { grid-template-columns: 30px 1fr 70px; }
+
+    .history-scramble-mini { display: none; }
+
+  }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+
+
+  <!-- HEADER -->
+
+  <header>
+
+    <div class="logo">Cube<span>Timer</span></div>
+
+    <div class="header-controls">
+
+      <button class="btn theme-toggle" id="themeBtn" title="Toggle theme">🌙</button>
+
+      <button class="btn danger" id="clearBtn">Clear All</button>
+
+    </div>
+
+  </header>
+
+
+
+  <!-- SCRAMBLE -->
+
+  <div class="scramble-box">
+
+    <div class="scramble-label">Scramble</div>
+
+    <div class="scramble-text" id="scrambleText">—</div>
+
+    <button class="btn" id="newScrambleBtn">New ↻</button>
+
+  </div>
+
+
+
+  <!-- TIMER -->
+
+  <div class="timer-section" id="timerSection">
+
+    <div class="timer-display" id="timerDisplay">0.00</div>
+
+    <div class="timer-hint" id="timerHint">Hold SPACE to start · Release to begin</div>
+
+  </div>
+
+
+
+  <!-- STATS -->
+
+  <div class="stats-row">
+
+    <div class="stat-card">
+
+      <div class="stat-label">Solves</div>
+
+      <div class="stat-value" id="statCount">0</div>
+
+    </div>
+
+    <div class="stat-card">
+
+      <div class="stat-label">Personal Best</div>
+
+      <div class="stat-value pb" id="statPB">—</div>
+
+    </div>
+
+    <div class="stat-card">
+
+      <div class="stat-label">Avg of 5</div>
+
+      <div class="stat-value good" id="statAo5">—</div>
+
+    </div>
+
+    <div class="stat-card">
+
+      <div class="stat-label">Avg of 12</div>
+
+      <div class="stat-value good" id="statAo12">—</div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- HISTORY -->
+
+  <div class="history-section">
+
+    <div class="history-header">
+
+      <div class="history-title">Solve History</div>
+
+    </div>
+
+    <div class="col-header">
+
+      <span>#</span>
+
+      <span>Time</span>
+
+      <span>Ao5</span>
+
+      <span>Ao12</span>
+
+      <span></span>
+
+    </div>
+
+    <div class="history-list" id="historyList">
+
+      <div class="history-empty">No solves yet — press SPACE to start</div>
+
+    </div>
+
+  </div>
+
+
+
+</div>
+
+
+
+<script>
+
+const MOVES = ['U','D','F','B','L','R'];
+
+const MODS = ['', "'", '2'];
+
+
+
+let solves = [];
+
+let timerInterval = null;
+
+let startTime = null;
+
+let isRunning = false;
+
+let isReady = false;
+
+let spaceDown = false;
+
+let readyTimeout = null;
+
+let currentScramble = '';
+
+let isDark = true;
+
+
+
+const timerDisplay = document.getElementById('timerDisplay');
+
+const timerSection = document.getElementById('timerSection');
+
+const timerHint = document.getElementById('timerHint');
+
+const scrambleText = document.getElementById('scrambleText');
+
+const historyList = document.getElementById('historyList');
+
+
+
+function generateScramble(length = 20) {
+
+  let moves = [];
+
+  let lastFace = '';
+
+  let secondLastFace = '';
+
+  for (let i = 0; i < length; i++) {
+
+    let available = MOVES.filter(m => m !== lastFace && !(m === secondLastFace && isOpposite(m, lastFace)));
+
+    let face = available[Math.floor(Math.random() * available.length)];
+
+    let mod = MODS[Math.floor(Math.random() * MODS.length)];
+
+    moves.push(face + mod);
+
+    secondLastFace = lastFace;
+
+    lastFace = face;
+
+  }
+
+  return moves.join(' ');
+
+}
+
+
+
+function isOpposite(a, b) {
+
+  const pairs = {U:'D',D:'U',F:'B',B:'F',L:'R',R:'L'};
+
+  return pairs[a] === b;
+
+}
+
+
+
+function formatTime(ms) {
+
+  if (ms < 60000) {
+
+    return (ms / 1000).toFixed(2);
+
+  }
+
+  const mins = Math.floor(ms / 60000);
+
+  const secs = ((ms % 60000) / 1000).toFixed(2).padStart(5, '0');
+
+  return `${mins}:${secs}`;
+
+}
+
+
+
+function calcAvg(arr, n) {
+
+  if (arr.length < n) return null;
+
+  const last = arr.slice(-n).map(s => s.time);
+
+  const sorted = [...last].sort((a, b) => a - b);
+
+  const trimmed = sorted.slice(1, -1);
+
+  return trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+
+}
+
+
+
+function getAo5() { return calcAvg(solves, 5); }
+
+function getAo12() { return calcAvg(solves, 12); }
+
+function getPB() {
+
+  if (!solves.length) return null;
+
+  return Math.min(...solves.map(s => s.time));
+
+}
+
+
+
+function updateStats() {
+
+  document.getElementById('statCount').textContent = solves.length;
+
+  const pb = getPB();
+
+  document.getElementById('statPB').textContent = pb ? formatTime(pb) : '—';
+
+  const ao5 = getAo5();
+
+  document.getElementById('statAo5').textContent = ao5 ? formatTime(ao5) : '—';
+
+  const ao12 = getAo12();
+
+  document.getElementById('statAo12').textContent = ao12 ? formatTime(ao12) : '—';
+
+}
+
+
+
+function renderHistory() {
+
+  if (!solves.length) {
+
+    historyList.innerHTML = '<div class="history-empty">No solves yet — press SPACE to start</div>';
+
+    return;
+
+  }
+
+  const pb = getPB();
+
+  historyList.innerHTML = solves.slice().reverse().map((solve, i) => {
+
+    const realIndex = solves.length - 1 - i;
+
+    const ao5 = calcAvg(solves.slice(0, realIndex + 1), 5);
+
+    const ao12 = calcAvg(solves.slice(0, realIndex + 1), 12);
+
+    const isPB = solve.time === pb;
+
+    return `
+
+      <div class="history-item">
+
+        <span class="history-num">${realIndex + 1}</span>
+
+        <span class="history-time ${isPB ? 'pb' : ''}">${formatTime(solve.time)}${isPB ? ' ★' : ''}</span>
+
+        <span class="history-ao5">${ao5 ? formatTime(ao5) : '—'}</span>
+
+        <span class="history-ao12">${ao12 ? formatTime(ao12) : '—'}</span>
+
+        <button class="delete-btn" onclick="deleteSolve(${realIndex})">✕</button>
+
+      </div>
+
+    `;
+
+  }).join('');
+
+}
+
+
+
+function deleteSolve(index) {
+
+  solves.splice(index, 1);
+
+  renderHistory();
+
+  updateStats();
+
+}
+
+
+
+function startTimer() {
+
+  startTime = Date.now();
+
+  isRunning = true;
+
+  timerSection.classList.add('running');
+
+  timerSection.classList.remove('ready');
+
+  timerHint.textContent = 'Press SPACE to stop';
+
+  timerInterval = setInterval(() => {
+
+    const elapsed = Date.now() - startTime;
+
+    timerDisplay.textContent = formatTime(elapsed);
+
+  }, 10);
+
+}
+
+
+
+function stopTimer() {
+
+  clearInterval(timerInterval);
+
+  isRunning = false;
+
+  timerSection.classList.remove('running');
+
+  const elapsed = Date.now() - startTime;
+
+  timerDisplay.textContent = formatTime(elapsed);
+
+  solves.push({ time: elapsed, scramble: currentScramble, date: new Date() });
+
+  renderHistory();
+
+  updateStats();
+
+  timerHint.textContent = 'Hold SPACE to start · Release to begin';
+
+  currentScramble = generateScramble();
+
+  scrambleText.textContent = currentScramble;
+
+}
+
+
+
+// Keyboard controls
+
+document.addEventListener('keydown', (e) => {
+
+  if (e.code === 'Space' && !e.repeat) {
+
+    e.preventDefault();
+
+    spaceDown = true;
+
+    if (isRunning) {
+
+      stopTimer();
+
+    } else {
+
+      timerSection.classList.add('ready');
+
+      timerHint.textContent = 'Release to start!';
+
+      readyTimeout = setTimeout(() => { isReady = true; }, 300);
+
+    }
+
+  }
+
+});
+
+
+
+document.addEventListener('keyup', (e) => {
+
+  if (e.code === 'Space') {
+
+    e.preventDefault();
+
+    clearTimeout(readyTimeout);
+
+    if (!isRunning && isReady) {
+
+      startTimer();
+
+    } else if (!isRunning) {
+
+      timerSection.classList.remove('ready');
+
+      timerHint.textContent = 'Hold SPACE to start · Release to begin';
+
+    }
+
+    spaceDown = false;
+
+    isReady = false;
+
+  }
+
+});
+
+
+
+// Touch support for mobile
+
+let touchReady = false;
+
+let touchReadyTimeout = null;
+
+
+
+timerSection.addEventListener('touchstart', (e) => {
+
+  e.preventDefault();
+
+  if (isRunning) {
+
+    stopTimer();
+
+  } else {
+
+    timerSection.classList.add('ready');
+
+    timerHint.textContent = 'Release to start!';
+
+    touchReadyTimeout = setTimeout(() => { touchReady = true; }, 300);
+
+  }
+
+}, { passive: false });
+
+
+
+timerSection.addEventListener('touchend', (e) => {
+
+  e.preventDefault();
+
+  clearTimeout(touchReadyTimeout);
+
+  if (!isRunning && touchReady) {
+
+    startTimer();
+
+  } else if (!isRunning) {
+
+    timerSection.classList.remove('ready');
+
+    timerHint.textContent = 'Tap & hold to start · Release to begin';
+
+  }
+
+  touchReady = false;
+
+}, { passive: false });
+
+
+
+// Buttons
+
+document.getElementById('newScrambleBtn').addEventListener('click', () => {
+
+  if (!isRunning) {
+
+    currentScramble = generateScramble();
+
+    scrambleText.textContent = currentScramble;
+
+  }
+
+});
+
+
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+
+  if (confirm('Clear all solves?')) {
+
+    solves = [];
+
+    renderHistory();
+
+    updateStats();
+
+  }
+
+});
+
+
+
+document.getElementById('themeBtn').addEventListener('click', () => {
+
+  isDark = !isDark;
+
+  document.body.classList.toggle('light', !isDark);
+
+  document.getElementById('themeBtn').textContent = isDark ? '🌙' : '☀️';
+
+});
+
+
+
+// Mobile hint update
+
+function updateHintForDevice() {
+
+  const isMobile = window.matchMedia('(pointer: coarse)').matches;
+
+  if (isMobile) {
+
+    timerHint.textContent = 'Tap & hold to start · Release to begin';
+
+  }
+
+}
+
+
+
+// Init
+
+currentScramble = generateScramble();
+
+scrambleText.textContent = currentScramble;
+
+updateStats();
+
+updateHintForDevice();
+</script>
+</body>
+</html>
